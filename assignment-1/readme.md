@@ -12,6 +12,7 @@ Write a Python script which does the following:
 
 ## Folders and contents
 - utils: Utility functions.
+- notebook: My jupyter notebook for this assignment.
 - data.zip: The raw data in a zip-file.
 - data: data used in the assignment
     - new_imgs.csv: An auto-generated csv-file which list each new picture, its height, its widthm amount of channels and its file-name.
