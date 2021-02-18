@@ -20,7 +20,7 @@ Choose one image in your data that you want to be the 'target image'. Write a Py
 - open terminal
 - Navigate to destination for repo
 - type the following command
-    - _git clone https://github.com/Chris-Kramer/visual_assignments.git
+    - _git clone https://github.com/Chris-Kramer/visual_assignments.git_  
 
 **step 2: set op virtual enviroment:**
 - Navigate to the folder "assignment-2".
@@ -43,14 +43,19 @@ The script will after a couple of minutes start printning the filename and the d
 The output is a csv-file which can be found in the folder "output" under the name "results.csv".
 
 ### Parameters
-The  parameters are the following:
-__Path to folder with images__
-folder_path = os.path.join("..", "data", "17flowers", "jpg")
+The  parameters are the following:  
 
-__Target image from the folder with images__
-target_img = cv2.imread(os.path.join("..", "data", "17flowers", "jpg", "image_0006.jpg"))
+__Path to folder with images__  
 
-__Destination and filename for output__
-output = os.path.join("..", "output", "results.csv")
+folder_path = os.path.join("..", "data", "17flowers", "jpg")  
+
+__Target image from the folder with images__  
+
+target_img = cv2.imread(os.path.join("..", "data", "17flowers", "jpg", "image_0006.jpg"))  
+
+__Destination and filename for output__  
+
+output = os.path.join("..", "output", "results.csv")  
+
 
 They are located in line 15-22. If you whish to change them. 
