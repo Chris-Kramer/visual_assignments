@@ -12,7 +12,7 @@ pip install --upgrade pip
 # problems when installing from requirements.txt
 test -f requirements.txt && pip install requirements.txt
 
-#Navigate to src folder
+#Navigate to folder with script
 cd src
 
 #run script
