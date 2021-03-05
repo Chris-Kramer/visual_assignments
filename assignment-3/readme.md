@@ -31,7 +31,7 @@ Using the skills you have learned up to now, do the following tasks:
 **step 2: Run bash script:**
 - Navigate to the folder "assignment-3".
 ```console
-cd assignment-2
+cd assignment-3
 ```  
 - Use the bash script _run-script.sh_ to set up environment and run the script:  
 ```console
