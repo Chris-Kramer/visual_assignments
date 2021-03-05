@@ -37,7 +37,7 @@ cd assignment-3
 ```console
 bash run-script.sh
 ```  
-The bash script will print out `DONE! THE CROPPED PICTURES AND THE PICTURE OF CONTOUR LINES ARE LOCATED IN THE FOLDER'output'`
+The bash script will print out `DONE! THE CROPPED PICTURES AND THE PICTURE OF CONTOUR LINES ARE LOCATED IN THE FOLDER'output'` when it is done running. 
 
 ## Output
 The output is two images which can be found in the folder "output".
