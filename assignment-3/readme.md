@@ -25,8 +25,9 @@ Using the skills you have learned up to now, do the following tasks:
 - open terminal
 - Navigate to destination for repo
 - type the following command
-    - _git clone https://github.com/Chris-Kramer/visual_assignments.git_  
-
+ ```console
+ git clone https://github.com/Chris-Kramer/visual_assignments.git
+ ```
 **step 2: Run bash script:**
 - Navigate to the folder "assignment-3".
 ```console
@@ -36,7 +37,7 @@ cd assignment-2
 ```console
 bash run-script.sh
 ```  
-The script will after a couple of minutes start printning the filename and the distance between the image and target image. 
+The bash script will print out `DONE! THE CROPPED PICTURES AND THE PICTURE OF CONTOUR LINES ARE LOCATED IN THE FOLDER'output'`
 
 ## Output
 The output is two images which can be found in the folder "output".
