@@ -46,7 +46,7 @@ The output is three images which can be found in the folder "output".
 This script takes the following parameters in the listed order, it have already been supplied with default values. But you are welcome to try and change the default parameters. I have added a photo called "test.jpg" under the data folder, you can use it if you want to try another picture.
 
 `--image` This is the path and filename of the image.  
-Default = ../data/jefferson_memorial.jpg  
+Default = data/jefferson_memorial.jpg  
 `--x_pixels_left` How many pixels to the left of center should the region of interest include?  
 Default = 750  
 `--x_pixels_right`How many pixels to the right of center should the region of interest include?  
