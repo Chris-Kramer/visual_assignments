@@ -12,7 +12,6 @@ Choose one image in your data that you want to be the 'target image'. Write a Py
 
 * Save the results from this comparison as a single .csv file, showing the distance between your target image and each of the other images. The .csv file should show the filename for every image in your data except the target and the distance metric between that image and your target. Call your columns: filename, distance.  
 
-* Print the filename of the image which is 'closest' to your target image  
 
 ## How to run
 
