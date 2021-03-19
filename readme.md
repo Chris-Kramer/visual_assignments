@@ -8,7 +8,7 @@ __Assignments__
 - *Assignment-1:* First assignment called "Basic image processing". Due date: 10-02-2021
 - *Assignment-2:* Assignment 2, where I loop through a folder of images and calculate difference between target image and folder images.
 - *Assignment-3:* I find contour lines in an image
-- *Assignment-4:*
+- *Assignment-4:* Using neural networks and logistic regression to categorise handwritten digits. 
 - *Assignment-5:*
 - *Assignment-6:*
 - *Assignment-7:*
