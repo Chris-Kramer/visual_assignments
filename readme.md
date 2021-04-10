@@ -9,7 +9,7 @@ __Assignments__
 - *Assignment-2:* Assignment 2, where I loop through a folder of images and calculate difference between target image and folder images.
 - *Assignment-3:* I find contour lines in an image
 - *Assignment-4:* Using neural networks and logistic regression to categorise handwritten digits. 
-- *Assignment-5:*
+- *Assignment-5:* CNNs on cultural image data
 - *Assignment-6:*
 - *Assignment-7:*
 - *Assignment-8:*
