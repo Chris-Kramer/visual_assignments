@@ -109,7 +109,7 @@ def main():
         nn.fit(X_train, y_train, epochs= epoch_n)
         
     #If there is one layers    
-    elif (layers_length == 2):
+    elif (layers_length == 1):
         #Train network
         print("[INFO] training network...")
         nn = NeuralNetwork([X_train.shape[1], int(layers[0]), 10])
