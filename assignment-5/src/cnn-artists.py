@@ -16,7 +16,7 @@ sys.path.append(os.path.join("..")) #For importing homebrewed functions
 import matplotlib.pyplot as plt
 
 #homebrewed functions
-from utils.cnn_utility import Cnn_utils # Rosses plot function
+from utils.cnn_utility import Cnn_utils
 
 # sklearn tools
 from sklearn.preprocessing import LabelBinarizer
