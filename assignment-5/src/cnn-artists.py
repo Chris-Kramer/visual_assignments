@@ -1,9 +1,7 @@
 #!/usr/bin/env python3
 """
 ------------- TO DO LIST (if time)-----------
-* Create argparse parameters (This will enable me to create a cnn pipeline that can easily be used on different types of image data)
-* Move the functions into a utility folder that can be imported (this will shorten the script)
-* Make the functions into classes (This is mainly for training)
+* Make the functions into classes (This is mainly for learning more about classes myself)
 """
 
 """
@@ -16,16 +14,21 @@ import cv2
 from pathlib import Path
 import re
 import numpy as np
+import argparse
+sys.path.append(os.path.join("..")) #For importing homebrewed functions
 
 #Plotting
 import matplotlib.pyplot as plt
+from utils.cnn_utility import plot_history # Rosses plot function
+
+#Preprocess data
+from utils.cnn_utility import resize_imgs
 
 # sklearn tools
 from sklearn.preprocessing import LabelBinarizer
 from sklearn.metrics import classification_report
 
 # tf tools
-from tensorflow.keras.datasets import cifar10 #Our data
 from tensorflow.keras.models import Sequential #Our Model
 from tensorflow.keras.layers import (Conv2D, #Our layers
                                      MaxPooling2D, 
@@ -39,41 +42,8 @@ from tensorflow.keras import backend as K
 #Warnings
 import warnings
 """
----------- Create functions ------------
+----------- Main function -----------
 """
-#Function for resizing images and converting it to value between zero and 1
-def resize_imgs(folder_path, dimensions):
-    #List of image sizes
-    images = []
-    #Folder  each folder in training data
-    for folder in Path(folder_path).glob("*"):
-        # For each file in the folder
-        for image in Path(folder).glob("*"):
-            #read image
-            image = cv2.imread(str(image))
-            #resize image
-            image = cv2.resize(image, dimensions, interpolation = cv2.INTER_AREA)
-            #append image to array and convert it to a value between 0 and 1
-            images.append(image.astype("float")/255.)
-    return images
-
-#Function for plotting the models performance
-def plot_history(H, epochs):
-    # visualize performance
-    plt.style.use("fivethirtyeight")
-    fig = plt.figure()
-    plt.plot(np.arange(0, epochs), H.history["loss"], label="train_loss")
-    plt.plot(np.arange(0, epochs), H.history["val_loss"], label="val_loss")
-    plt.plot(np.arange(0, epochs), H.history["accuracy"], label="train_acc")
-    plt.plot(np.arange(0, epochs), H.history["val_accuracy"], label="val_acc")
-    plt.title("Training Loss and Accuracy")
-    plt.xlabel("Epoch #")
-    plt.ylabel("Loss/Accuracy")
-    plt.legend()
-    plt.tight_layout()
-    plt.show()
-    fig.savefig("../output/performance.png")
-    
 def main():
     #Surpress warnings this this is usefull, when using a small data set
     #Otherwise it will warn that some labels arent predicted (but this is natural with small data sets
@@ -81,23 +51,126 @@ def main():
     warnings.filterwarnings('ignore')
     """
     -------------- Parameters -------------
-    I don't have any argparse parameters yet, however if I find Time, I will set some in
-    * Epochs
-    * Size of images
-    * Folder to training data
-    * Folder to test data
-    * Batch size
-    * Even stuff like activation functions, padding and strides can be put to parameters.
-    The stuff above will give me a working data cleaning and analysis pipeline, that can be used on lots of different data
     """
+    #Create an argument parser from argparse
+    ap = argparse.ArgumentParser(description = "[INFO] CNN for classifying painters")
+    
+    # dir to training data
+    ap.add_argument("-t", "--train_data",
+                    required = False,
+                    default = "data/small_training",
+                    type = str,
+                    help = "The folder to training data. DEFAULT = data/small_training")
+    
+    # dir to test data
+    ap.add_argument("-v", "--validation_data",
+                    required = False,
+                    default = "data/small_validation",
+                    type = str,
+                    help = "The folder to test data. DEFAULT = data/small_validation")
+    
+    # output dir
+    ap.add_argument("-o", "--output",
+                    required = False,
+                    default = "output",
+                    type = str,
+                    help = "The folder for output data. DEFAULT = output")
+    
+    # image size
+    ap.add_argument("-i", "--image_size",
+                    required = False,
+                    default = [120, 120],
+                    nargs = "*",
+                    type = int,
+                    help = "The size of resized pictures. DEFAULT = 120 120")
+    
+    # kernel size
+    ap.add_argument("-k", "--kernel_size",
+                    required = False,
+                    default = [3, 5],
+                    nargs = "*",
+                    type = int,
+                    help = "The size of two convolutionals kernels that are used in the first and second layer. DEFAULT = 3 5 (3x3 and 5x5")
+    # filters
+    ap.add_argument("-f", "--filters",
+                    required = False,
+                    default = [32, 50],
+                    nargs = "*",
+                    type = int,
+                    help = "The size of two output filters from the convolutional layers (there are two). DEFAULT = 32 50")
+    
+    # pool size
+    ap.add_argument("-pz", "--pool_size",
+                    required = False,
+                    default = [2, 2],
+                    nargs = "*",
+                    type = int,
+                    help = "The size of pool size for pooling layers (there are two). DEFAULT = 2 2 (2x2 and 2x2")
+    # strides
+    ap.add_argument("-p", "--strides",
+                    required = False,
+                    default = [2, 2],
+                    nargs = "*",
+                    type = int,
+                    help = "The strides for each pooling layer (there are two). DEFAULT = 2 2 (2x2 and 2x2")
+    
+    # PAdding type
+    ap.add_argument("-pt", "--padding",
+                    required = False,
+                    default = ["same", "same"],
+                    nargs = "*",
+                    type = str,
+                    help = "The padding type for each convolutional layer (there are two). DEFAULT = same same")
+    
+    # Activation layers
+    ap.add_argument("-al", "--activation_layers",
+                    required = False,
+                    default = ["relu", "relu", "relu", "softmax"],
+                    nargs = "*",
+                    type = str,
+                    help = "Each activation level (There are four). DEFAULT = relu relu relu softmax")
+    # Learning rate
+    ap.add_argument("-lr", "--learning_rate",
+                    required = False,
+                    default = 0.01,
+                    type = float,
+                    help = "The learning rate for stochastic gradient descent. DEFAULT = 0.01")
+    # batch size
+    ap.add_argument("-bs", "--batch_size",
+                    required = False,
+                    default = 32,
+                    type = int,
+                    help = "The size of the batch processing. DEFAULT = 32")
+    
+    #number of epochs
+    ap.add_argument("-ep", "--epochs",
+                    required = False,
+                    default = 20,
+                    type = int,
+                    help = "The number of epochs that should run. DEFAULT = 20")
+
+    args = vars(ap.parse_args())
+    
+    #save arguments in variables (for readability)
+    training_data = "../" + args["train_data"]
+    validation_data = "../" + args["validation_data"]
+    output = "../" + args["output"]
+    image_size = args["image_size"]
+    kernel_size = args["kernel_size"]
+    filters = args["filters"]
+    pool_size = args["pool_size"]
+    strides = args["strides"]
+    padding = args["padding"]
+    activation_layer = args["activation_layers"]
+    learning_rate = args["learning_rate"]
+    batch_size = args["batch_size"]
+    epochs = args["epochs"]
     
     """
     -------------- Preprocessing data ----------
     """
-    print("finding labels...")
     #----- Find and create labels -----
-    #Path to training folder with painters
-    training_dir = os.path.join("..", "data", "small_training")
+    print("finding labels...")
     #Names as a string
     label_names = []
     #Training labels
@@ -105,7 +178,7 @@ def main():
     #Counter variable
     i = 0
     #For each folder in the training data
-    for folder in Path(training_dir).glob("*"):
+    for folder in Path(training_data).glob("*"):
         #Find painters name
         painter = re.findall(r"(?!.*/).+", str(folder))
         #Append the painters names to the list "label_names"
@@ -116,15 +189,13 @@ def main():
             trainY.append(i)
         #Increase counter by 1    
         i +=1 
-        
-     #Path to test folder with painters
-    test_dir = os.path.join("..", "data", "small_validation")  
+
     #Test labels
     testY = []  
     #Counter
     i = 0
     #For each folder in the test data
-    for folder in Path(test_dir).glob("*"):
+    for folder in Path(validation_data).glob("*"):
         #For each image in the folder
         for img in folder.glob("*"):
             #Aooend the folder index (e.g. the label)
@@ -132,23 +203,19 @@ def main():
         #Increase by 1
         i +=1 
     
-    print("binarizing labels...")
     #----- Binarize labels ------
+    print("binarizing labels...")
     #Binariser
     lb = LabelBinarizer()
     #Transform labels 0-9 into binary labels
     trainY = lb.fit_transform(trainY)
     testY = lb.fit_transform(testY)
     
-    print("resizing images...")
     #----- Resize images -----
-    # paths
-    filepath_training = os.path.join("..", "data", "small_training")
-    filepath_validation = os.path.join("..", "data", "small_validation")
-    
+    print("resizing images...")
     # Create training and test data
-    trainX = resize_imgs(filepath_training, (120, 120))
-    testX =resize_imgs(filepath_validation, (120,120))
+    trainX = resize_imgs(training_data, (image_size[0], image_size[1]))
+    testX = resize_imgs(validation_data, (image_size[0],image_size[1]))
     
     #Convert data to numpy arrays
     testX = np.array(testX)
@@ -163,24 +230,24 @@ def main():
 
     # ------- first set of CONV => RELU => POOL -------
     #Conv
-    model.add(Conv2D(32, (3, 3), 
-                     padding="same", 
-                     input_shape= (120, 120, 3)))
+    model.add(Conv2D(filters[0], (kernel_size[0], kernel_size[0], ), 
+                     padding=padding[0], 
+                     input_shape= (image_size[0], image_size[1], 3)))
     #Relu
-    model.add(Activation("relu"))
+    model.add(Activation(activation_layer[0]))
     #Pool
-    model.add(MaxPooling2D(pool_size=(2, 2), 
-                           strides=(2, 2)))
+    model.add(MaxPooling2D(pool_size=(pool_size[0], pool_size[0]), 
+                           strides=(strides[0], strides[0])))
 
     # ------- second set of CONV => RELU => POOL ------
     #Conv
-    model.add(Conv2D(50, (5, 5), 
-                     padding="same"))
+    model.add(Conv2D(filters[1], (kernel_size[1], kernel_size[1]), 
+                     padding=padding[1]))
     #Relu
-    model.add(Activation("relu"))
+    model.add(Activation(activation_layer[1]))
     #Pool
-    model.add(MaxPooling2D(pool_size=(2, 2), 
-                           strides=(2, 2)))
+    model.add(MaxPooling2D(pool_size=(pool_size[1], pool_size[1]), 
+                           strides=(strides[1], strides[1])))
 
     # ------- FC => RELU --------
     #flatten
@@ -188,16 +255,16 @@ def main():
     #Add layer
     model.add(Dense(500))
     #Relu
-    model.add(Activation("relu"))
+    model.add(Activation(activation_layer[2]))
 
     # -------- softmax classifier layer-------
     model.add(Dense(10))
     #Activation
-    model.add(Activation("softmax"))
+    model.add(Activation(activation_layer[3]))
     
     # ------- Optimizer -------
-    #Stochastic descent with learning rate 0.1
-    opt = SGD(lr=0.01)
+    #Stochastic descent with learning rate 0.01
+    opt = SGD(lr=learning_rate)
     model.compile(loss="categorical_crossentropy",
                   optimizer=opt,
                   metrics=["accuracy"])
@@ -207,7 +274,7 @@ def main():
     #Create a summary of the model
     model.summary()
     #plot model
-    plot_model(model, to_file = "../output/model_architecture.png", show_shapes=True, show_layer_names=True)
+    plot_model(model, to_file = output + "/model_architecture.png", show_shapes=True, show_layer_names=True)
     
     """
     ----------- Train and evaluate model --------------
@@ -216,16 +283,17 @@ def main():
     # train model
     H = model.fit(trainX, trainY, 
                   validation_data=(testX, testY), 
-                  batch_size=32,
-                  epochs=20,
+                  batch_size= batch_size,
+                  epochs= epochs,
                   verbose=1)
     #Plot performance pr. epoch
-    plot_history(H,20)
+    
+    plot_history(H, epochs, str(output + "/performance.png"))
     
     #Create a summary of the model
     #Print classification report
     print("evaluating model...")
-    predictions = model.predict(testX, batch_size=32)
+    predictions = model.predict(testX, batch_size = batch_size)
     print(classification_report(testY.argmax(axis=1),
                                 predictions.argmax(axis=1),
                                 target_names=label_names))
