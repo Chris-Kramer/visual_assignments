@@ -68,7 +68,7 @@ class Cnn_utils:
         fig.savefig(output)
     
     # Create a subset of data (usefull when needing to create a small data set)
-    def subset_data(folder_path, destination, n_files):
+    def subset_data(self, folder_path, destination, n_files):
         #folder which contains the sub directories
         #list sub directories 
         for root, dirs, files in os.walk(folder_path):
@@ -86,7 +86,7 @@ class Cnn_utils:
                     shutil.copy2(folder_path + "%s/" % i  + j, path)
                 
     # Find smallest image (usefull for getting an idea of, which input size to chose for neural network
-    def find_smallest_img(filepath):
+    def find_smallest_img(self, filepath):
         #Array for training data
         images =[]
         #List of image sizes
@@ -106,7 +106,7 @@ class Cnn_utils:
         return smallest_image
 
     # Find largest image (usefull for getting an idea of, which input size to chose for neural network
-    def find_largest_img(filepath):
+    def find_largest_img(self, filepath):
         #Array for training data
         images =[]
         #List of image sizes
