@@ -8,6 +8,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 class Cnn_utils:
+    """
+    I have deliberately skipped the init function. My class have no attributes and nothing needs to happen automatically. 
+    I only the class to keep track of all my functions that are related to cnn processing (And for learning how to work with classes).
+    When I use the init function without any parameters I get an indentation error, so I just removed it. 
+    """
     #Get X data and preprocess it
     def get_x(self, folder_path, dimensions):
         #List of images
