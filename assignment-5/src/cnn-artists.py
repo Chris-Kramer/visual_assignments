@@ -1,10 +1,5 @@
 #!/usr/bin/env python3
 """
-------------- TO DO LIST (if time)-----------
-* Make the functions into classes (This is mainly for learning more about classes myself)
-"""
-
-"""
 ---------- Import libraries ----------
 """
 #Standard tools
@@ -19,10 +14,9 @@ sys.path.append(os.path.join("..")) #For importing homebrewed functions
 
 #Plotting
 import matplotlib.pyplot as plt
-from utils.cnn_utility import plot_history # Rosses plot function
 
-#Preprocess data
-from utils.cnn_utility import resize_imgs
+#homebrewed functions
+from utils.cnn_utility import Cnn_utils # Rosses plot function
 
 # sklearn tools
 from sklearn.preprocessing import LabelBinarizer
@@ -152,9 +146,10 @@ def main():
     args = vars(ap.parse_args())
     
     #save arguments in variables (for readability)
-    training_data = "../" + args["train_data"]
-    validation_data = "../" + args["validation_data"]
-    output = "../" + args["output"]
+    #I'm using os.norm.path so the paths works on different OS
+    training_data = os.path.normpath("../" + args["train_data"]) 
+    validation_data = os.path.normpath("../" + args["validation_data"])
+    output = os.path.normpath("../" + args["output"])
     image_size = args["image_size"]
     kernel_size = args["kernel_size"]
     filters = args["filters"]
@@ -169,39 +164,14 @@ def main():
     """
     -------------- Preprocessing data ----------
     """
+    #Import class with utility functions
+    cnn_utils = Cnn_utils()
+    
     #----- Find and create labels -----
     print("finding labels...")
-    #Names as a string
-    label_names = []
-    #Training labels
-    trainY = []
-    #Counter variable
-    i = 0
-    #For each folder in the training data
-    for folder in Path(training_data).glob("*"):
-        #Find painters name
-        painter = re.findall(r"(?!.*/).+", str(folder))
-        #Append the painters names to the list "label_names"
-        label_names.append(painter[0])
-        #For each image in the folder
-        for img in folder.glob("*"):
-            #append the folder index (e.g. the label)
-            trainY.append(i)
-        #Increase counter by 1    
-        i +=1 
-
-    #Test labels
-    testY = []  
-    #Counter
-    i = 0
-    #For each folder in the test data
-    for folder in Path(validation_data).glob("*"):
-        #For each image in the folder
-        for img in folder.glob("*"):
-            #Aooend the folder index (e.g. the label)
-            testY.append(i)
-        #Increase by 1
-        i +=1 
+    trainY = cnn_utils.get_y(training_data)
+    testY = cnn_utils.get_y(validation_data)
+    label_names = cnn_utils.get_label_names(validation_data)
     
     #----- Binarize labels ------
     print("binarizing labels...")
@@ -211,11 +181,11 @@ def main():
     trainY = lb.fit_transform(trainY)
     testY = lb.fit_transform(testY)
     
-    #----- Resize images -----
-    print("resizing images...")
+    #----- Preprocess images -----
+    print("Preprocessing images...")
     # Create training and test data
-    trainX = resize_imgs(training_data, (image_size[0], image_size[1]))
-    testX = resize_imgs(validation_data, (image_size[0],image_size[1]))
+    trainX = cnn_utils.get_x(training_data, (image_size[0], image_size[1]))
+    testX = cnn_utils.get_x(validation_data, (image_size[0],image_size[1]))
     
     #Convert data to numpy arrays
     testX = np.array(testX)
@@ -274,7 +244,7 @@ def main():
     #Create a summary of the model
     model.summary()
     #plot model
-    plot_model(model, to_file = output + "/model_architecture.png", show_shapes=True, show_layer_names=True)
+    plot_model(model, to_file = os.path.normpath(output + "/model_architecture.png"), show_shapes=True, show_layer_names=True)
     
     """
     ----------- Train and evaluate model --------------
@@ -286,9 +256,9 @@ def main():
                   batch_size= batch_size,
                   epochs= epochs,
                   verbose=1)
-    #Plot performance pr. epoch
     
-    plot_history(H, epochs, str(output + "/performance.png"))
+    #Plot performance pr. epoch
+    cnn_utils.plot_history(H, epochs, os.path.normpath(output + "/performance.png"))
     
     #Create a summary of the model
     #Print classification report
