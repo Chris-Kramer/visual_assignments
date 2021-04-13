@@ -187,10 +187,6 @@ def main():
     trainX = cnn_utils.get_x(training_data, (image_size[0], image_size[1]))
     testX = cnn_utils.get_x(validation_data, (image_size[0],image_size[1]))
     
-    #Convert data to numpy arrays
-    testX = np.array(testX)
-    trainX = np.array(trainX)
-    
     """
     ----------- Create model ----------
     """

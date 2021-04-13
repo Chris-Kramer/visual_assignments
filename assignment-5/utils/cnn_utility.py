@@ -15,8 +15,8 @@ class Cnn_utils:
     """
     #Get X data and preprocess it
     def get_x(self, folder_path, dimensions):
-        #List of images
-        images = []
+        #X data
+        X = []
         #Folder  each folder in training data
         for folder in Path(folder_path).glob("*"):
             #For each file in the folder
@@ -26,8 +26,10 @@ class Cnn_utils:
                 #resize image
                 image = cv2.resize(image, dimensions, interpolation = cv2.INTER_AREA)
                 #append image to array and convert it to a value between 0 and 1
-                images.append(image.astype("float")/255.)
-        return images
+                X.append(image.astype("float")/255.)
+        #Convert X to numpy array
+        X = np.array(X)
+        return X
         
     # Get the name of each folder (the labels as a string)
     # folder_path needs to be a folder with subfolders
@@ -44,15 +46,17 @@ class Cnn_utils:
     
     #Get y data (the label for each picture)
     def get_y(self, folder_path):
-        y = [] # A list of all labels
+        y = [] # A list of all images labels
         i = 0 #Counter
         #For each folder in the test data
         for folder in Path(folder_path).glob("*"):
             #For each image in the folder
             for img in folder.glob("*"):
-                #Append the folder index (e.g. the label)
+                #Append the folder index (e.g. the label) to y
                 y.append(i)
             i += 1
+        #Convert Y to numpy array
+        y = np.array(y)
         return y
     
     #Function for plotting the models performance
@@ -127,8 +131,8 @@ class Cnn_utils:
                 #Append the sum of the dimensions
                 image_sizes.append(sum(image.shape))
         #Find the image
-        largest_images = images[image_sizes.index(max(image_sizes))]
-        return largest_images
+        largest_image = images[image_sizes.index(max(image_sizes))]
+        return largest_image
 
 if __name__=="__main__":
     pass #Don't run from terminal
