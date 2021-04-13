@@ -33,19 +33,32 @@ The bash script will print out a performance report and save a summary and a gra
 ## Parameters
 For the heck of it, I tried to add a lot of parameters to this script, so the model can be costumized. It has default values for all parameters. If you wan't to fiddle around with the model I suggest taking a look at the picture Original_model_architecture.png so you can see how many layers, and what types of layers there are.   
 
-- train_data: The folder to training data. DEFAULT = data/small_training   
-- validation_data: The folder to test data. DEFAULT = data/small_validation
-- output: The folder for output data. DEFAULT = output
-- image_size: The size of resized pictures. DEFAULT = 120 120
-- kernel_size: The size of two convolutionals kernels that are used in the first and second layer. DEFAULT = 3 5 (This means 3x3 and 5x5)
-- filters: The size of two output filters from the convolutional layers (there are two). DEFAULT = 32 50
-- pool_size: The pool size for pooling layers (there are two). DEFAULT = 2 2 (2x2 and 2x2)
-- strides: The strides for each pooling layer (there are two). DEFAULT = 2 2 (2x2 and 2x2)
-- padding: The padding type for each convolutional layer (there are two). DEFAULT = same same
-- activation_layers: Each activation level (There are four). DEFAULT = relu relu relu softmax
-- learning_rate: The learning rate for stochastic gradient descent. DEFAULT = 0.01
-- batch_size: The size of the batch processing. DEFAULT = 32
-- epochs: The number of epochs that should run. DEFAULT = 20  
+- train_data: The folder to training data.  
+DEFAULT = data/small_training   
+- validation_data: The folder to test data.  
+DEFAULT = data/small_validation
+- output: The folder for output data.  
+DEFAULT = output
+- image_size: The size of resized pictures.  
+DEFAULT = 120 120
+- kernel_size: The size of two convolutionals kernels that are used in the first and second layer.  
+DEFAULT = 3 5 (This means 3x3 and 5x5)
+- filters: The size of two output filters from the convolutional layers (there are two).  
+DEFAULT = 32 50
+- pool_size: The pool size for pooling layers (there are two).  
+DEFAULT = 2 2 (2x2 and 2x2)
+- strides: The strides for each pooling layer (there are two).  
+DEFAULT = 2 2 (2x2 and 2x2)
+- padding: The padding type for each convolutional layer (there are two).  
+DEFAULT = same same
+- activation_layers: Each activation level (There are four).  
+DEFAULT = relu relu relu softmax
+- learning_rate: The learning rate for stochastic gradient descent.  
+DEFAULT = 0.01
+- batch_size: The size of the batch processing.  
+DEFAULT = 32
+- epochs: The number of epochs that should run.  
+DEFAULT = 20  
 Example (This won't work since unless you have the same path to the data folder). 
 ```console
 bash run_cnn-artists.sh --epochs 21 --kernel_size 3 7 --train_data data/training --validation_data data/validation
