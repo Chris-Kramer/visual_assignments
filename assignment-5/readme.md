@@ -28,7 +28,7 @@ bash run_cnn-artists.sh
 ```  
 The bash script will print out a performance report and save a summary and a graph in the folder _output_.
 
-**Note:** Because of limitations regarding data storage on git, I'm only using a very small slice of the data. So the performance is attrociosly bad (around 18%). Moreover, when resizing images you might encounter the following warning "Corrupt JPEG data: 10 extraneous bytes before marker 0xd9". Ignore this, this   
+**Note:** Because of limitations regarding data storage on git, I'm only using a very small slice of the data. So the performance is attrociosly bad (around 18%). Moreover, when resizing images you might encounter the following warning "Corrupt JPEG data: 10 extraneous bytes before marker 0xd9". Ignore this, since it just means, that one of the images is corrupted.    
 
 ## Parameters
 For the heck of it, I tried to add a lot of parameters to this script, so the model can be costumized. It has default values for all parameters. If you wan't to fiddle around with the model I suggest taking a look at the picture Original_model_architecture.png so you can see how many layers, and what types of layers there are.   
