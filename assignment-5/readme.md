@@ -45,7 +45,7 @@ For the heck of it, I tried to add a lot of parameters to this script, so the mo
 - activation_layers: Each activation level (There are four). DEFAULT = relu relu relu softmax
 - learning_rate: The learning rate for stochastic gradient descent. DEFAULT = 0.01
 - batch_size: The size of the batch processing. DEFAULT = 32
-- epochs: The number of epochs that should run. DEFAULT = 20
+- epochs: The number of epochs that should run. DEFAULT = 20  
 Example (This won't work since unless you have the same path to the data folder). 
 ```console
 bash run_cnn-artists.sh --epochs 21 --kernel_size 3 7 --train_data data/training --validation_data data/validation
