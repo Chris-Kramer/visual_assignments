@@ -1,0 +1,9 @@
+sklearn
+tensorflow
+pandas
+matplotlib
+numpy
+OpenCV-Python
+pydot
+graphviz
+google
