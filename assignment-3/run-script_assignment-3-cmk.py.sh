@@ -15,7 +15,9 @@ echo "Installing pip and requirements"
 pip install --upgrade pip
 
 # problems and install requirements.txt
-test -f requirements.txt && pip install requirements.txt
+test -f requirements.txt && pip install -r requirements.txt
+
+cd src 
 
 echo "Running script"
 #run script

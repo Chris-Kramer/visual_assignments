@@ -3,7 +3,7 @@
 """
 import os
 import sys
-sys.path.append(os.path.join(".."))
+#sys.path.append(os.path.join(".."))
 import cv2
 import numpy as np
 import argparse
@@ -22,7 +22,7 @@ def main():
     #Image 
     ap.add_argument("-im", "--image",
                     required = False,
-                    default = "jefferson_memorial.jpg"
+                    default = "jefferson_memorial.jpg",
                     type = str,
                     help = 
                     "[INFO] File name of the image. Must be located in the folder 'data' \n"
@@ -36,7 +36,7 @@ def main():
                     default = 750,
                     type = int,
                     help =
-                    "[INFO] ROI in pixels left from center (integer) \n",
+                    "[INFO] ROI in pixels left from center (integer) \n"
                     "[TYPE] int \n"
                     "[DEFAULT] 750 \n"
                     "[EXAMPLE] --x_pixels_left 700")
@@ -70,9 +70,42 @@ def main():
                     type = int,
                     help =
                     "[INFO] ROI in pixels down from center \n"
-                    "[TYPE] int"
+                    "[TYPE] int \n"
                     "[DEFAULT] 1175 \n"
                     "[EXAMPLE] --y_pixels_down 1000")
+    
+    #Blur kernel
+    ap.add_argument("-bk", "--blur_kernel",
+                    required = False,
+                    default = 5,
+                    type = int,
+                    help =
+                    "[INFO] The size of the blur kernel (Gaussian blur) \n"
+                    "[TYPE] int \n"
+                    "[DEFAULT] 5 \n"
+                    "[EXAMPLE] --blur_kernel 5")
+    
+    #Lower threshold
+    ap.add_argument("-lt", "--lower_thresh",
+                    required = False,
+                    default = 100,
+                    type = int,
+                    help =
+                    "[INFO] The lower threshold for gaussian blur \n"
+                    "[TYPE] int \n"
+                    "[DEFAULT] 100 \n"
+                    "[EXAMPLE] --lower_thresh 150")
+    
+    #Upper threshold
+    ap.add_argument("-ut", "--upper_thresh",
+                    required = False,
+                    default = 150,
+                    type = int,
+                    help =
+                    "[INFO] The lower threshold for gaussian blur \n"
+                    "[TYPE] int \n"
+                    "[DEFAULT] 150 \n"
+                    "[EXAMPLE] --upper_thresh 250")
     
     ap.add_argument("-roi", "--roi_output",
                     required = False,
@@ -90,11 +123,11 @@ def main():
                     type = str, 
                     help = 
                     "[INFO] Filename for cropped output image, will be located in the folder 'output' \n"
-                    "[TYPE] str \n",
-                    "[DEFAULT] image_cropped.jpg \n",
+                    "[TYPE] str \n"
+                    "[DEFAULT] image_cropped.jpg \n"
                     "[EXAMPLE] --cropped_output test_img_cropped.jpg")
     
-    ap.add_argument("-co", "--contor_output",
+    ap.add_argument("-co", "--contour_output",
                     required = False,
                     default = "image_contours.jpg",
                     type = str,
@@ -161,9 +194,9 @@ def main():
     #Convert to greyscale
     grey_cropped = cv2.cvtColor(cropped_image, cv2.COLOR_BGR2GRAY)
     #Gaussian blur
-    blurred = cv2.GaussianBlur(grey_cropped, (5,5), 0)
+    blurred = cv2.GaussianBlur(grey_cropped, (args["blur_kernel"], args["blur_kernel"]), 0)
     #Canny blur
-    canny = cv2.Canny(blurred, 100, 150)
+    canny = cv2.Canny(blurred, args["lower_thresh"], args["upper_thresh"])
 
     """
     ----------- Find and draw contours -----------
@@ -180,7 +213,7 @@ def main():
                         (0,255,0), #Contour color
                          2)
     #Save image
-    contour_output = os.path.join("..", "output", args["contor_output"])
+    contour_output = os.path.join("..", "output", args["contour_output"])
     cv2.imwrite(contour_output, image_contours)
     
 #Define behaviour when called from command line
