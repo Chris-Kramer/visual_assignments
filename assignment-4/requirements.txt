@@ -1,5 +1,4 @@
 sklearn
 numpy
 pandas
-seaborn
 opencv-python

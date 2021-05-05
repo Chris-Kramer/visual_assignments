@@ -31,25 +31,15 @@ def main():
     #Create an argument parser from argparse
     ap = argparse.ArgumentParser(description = "[INFO] Classify MNIST data and print out performance report",
                                 formatter_class = RawTextHelpFormatter)
-    
-    #size of training data in percentage
-    #ap.add_argument("-trs", "--train_size",
-    #                required = False,
-    #                default = 0.8,
-    #                type = float,
-    #                help =
-    #                "[INFO] The size of the training data as a percentage \n"
-    #                "[TYPE] float \n"
-    #                "[DEFAULT] 0.8 \n"
-    #                "[EXAMPLE] --train_size 0.9")
-    
+
     #size of test data in percentage 
     ap.add_argument("-tes", "--test_size",
                     required = False,
                     default = 0.2,
                     type = float,
                     help =
-                    "[INFO] The size of the test data as a float percentage. Train size will be adjusted automatically \n"
+                    "[INFO] The size of the test data as a float percentage. \n"
+                    "[INFO] Training size will be adjusted automatically. \n"
                     "[TYPE] float \n"
                     "[DEFAULT] 0.2 \n"
                     "[EXAMPLE] --test_size 0.1")
@@ -66,7 +56,7 @@ def main():
                     "[EXAMPLE] --epochs 250")
     
     #Hidden layers
-    ap.add_argument("-l", "--layers",
+    ap.add_argument("-l", "--hidden_layers",
                     required = False,
                     default = [32, 16],
                     nargs = "*",
@@ -83,8 +73,7 @@ def main():
     
     #Save in variables for readability
     epoch_n = args["epochs"]
-    layers = args["layers"]
-    #trs = args["train_size"] #training size
+    layers = args["hidden_layers"]
     tes = args["test_size"] #test size
     
     """
@@ -105,7 +94,6 @@ def main():
     #Create training data and test dataset
     X_train, X_test, y_train, y_test = train_test_split(X, 
                                                         y,
-                                                        #train_size = trs,
                                                         test_size = tes)
     # convert labels from integers to vectors (binary)
     y_train = LabelBinarizer().fit_transform(y_train)
@@ -132,7 +120,7 @@ def main():
         print("[INFO] {}".format(nn))
         nn.fit(X_train, y_train, epochs= epoch_n)
         
-    #If there is one layers    
+    #If there is one layer    
     elif (layers_length == 1):
         #Train network
         print("[INFO] training network...")

@@ -15,11 +15,12 @@ from argparse import RawTextHelpFormatter # Formatting -help
 import matplotlib.pyplot as plt
 
 #homebrewed functions
-import cnn_utils
+import utils.cnn_utils as cnn_utils
 
 # sklearn tools
 from sklearn.preprocessing import LabelBinarizer
 from sklearn.metrics import classification_report
+from sklearn.model_selection import train_test_split
 
 # tf tools
 from tensorflow.keras.models import Sequential #Our Model
@@ -49,8 +50,21 @@ def main():
     ap = argparse.ArgumentParser(description = "[INFO] CNN for classifying painters",
                                 formatter_class = RawTextHelpFormatter)
     
+    #Use this flag if you need to split the data. It takes a folder with categories as input
+    ap.add_argument("-sd", "--split_data",
+                    required = False,
+                    default = None,
+                    type = str,
+                    help =
+                    "[INFO] Use this flag if you need to split the data in training and test data \n"
+                    "[INFO] It takes a folder as input. The folder must be located in the 'data' folder \n"
+                    "[INFO] The train-split divide will be 80/20%% \n"
+                    "[TYPE] str \n"
+                    "[DEFAULT] None \n"
+                    "[EXAMPLE] --split_data shapes")
+    
     # dir to training data
-    ap.add_argument("-t", "--train_data",
+    ap.add_argument("-td", "--train_data",
                     required = False,
                     default = "small_training",
                     type = str,
@@ -61,12 +75,12 @@ def main():
                     "[EXAMPLE] --train_data training")
     
     # dir to test data
-    ap.add_argument("-v", "--validation_data",
+    ap.add_argument("-vd", "--validation_data",
                     required = False,
                     default = "small_validation",
                     type = str,
                     help =
-                    "[INFO] The folder with test/validation data. Must be a subfolder in the 'data' folder \n"
+                    "[INFO] The folder with validation data. Must be a subfolder in the 'data' folder \n"
                     "[TYPE] str \n"
                     "[DEFAULT] small_validation \n"
                     "[EXAMPLE] --validation_data validation")
@@ -88,7 +102,7 @@ def main():
                     default = "performance.png",
                     type = str,
                     help =
-                    "[INFO] The file name for output plot with performance \n"
+                    "[INFO] The filename for output plot with performance \n"
                     "[TYPE] str \n"
                     "[DEFAULT] performance.png \n"
                     "[EXAMPLE] --performance_out performance.png")
@@ -113,7 +127,8 @@ def main():
                     type = int,
                     help =
                     "[INFO] The size of two convolutionals kernels that are used in the first and second layer \n"
-                    "[INFO] First value represents the kernel size of first conv2d layer, second value represents sencond conv2d layer \n"
+                    "[INFO] First value represents the kernel size of first conv2d layer \n"
+                    "[INFO] Second value represents sencond conv2d layer \n"
                     "[TYPE] str \n"
                     "[DEFAULT] 3 5 \n"
                     "[EXAMPLE] --kernel_size 5 7")
@@ -124,7 +139,7 @@ def main():
                     nargs = "*",
                     type = int,
                     help =
-                    "[INFO] The size of filters in the convolutional layers (there are two) \n"
+                    "[INFO] The amount of filters in the convolutional layers (there are two) \n"
                     "[INFO] Argument is a list of ints (length of two) \n"
                     "[INFO] First value is amount of filters in first conv2d layer \n"
                     "[INFO] Second value is amount of filters in second conv2d layer \n"
@@ -143,9 +158,9 @@ def main():
                     "[INFO] First value represents first pooling layer, second value represents second pooling layer \n"
                     "[TYPE] list of ints \n"
                     "[DEFAULT] 2 2 (2x2 and 2x2) \n"
-                    "[EXAMPLE] --pool_size 3 3"
+                    "[EXAMPLE] --pool_size 3 3")
     # strides
-    ap.add_argument("-p", "--strides",
+    ap.add_argument("-st", "--strides",
                     required = False,
                     default = [2, 2],
                     nargs = "*",
@@ -159,7 +174,7 @@ def main():
                     "[EXAMPLE] --strides 3 3")
     
     # PAdding type
-    ap.add_argument("-pt", "--padding",
+    ap.add_argument("-pa", "--padding",
                     required = False,
                     default = ["same", "same"],
                     nargs = "*",
@@ -179,7 +194,8 @@ def main():
                     type = str,
                     help =
                     "[INFO] Each activation level (There are four) \n"
-                    "[INFO] I recommend not changing these layers (especially softmax) unless you are trying binary classification) \n"
+                    "[INFO] I recommend not changing these layers \n"
+                    "[INFO] However, if you are doing binary classification sigmoid might be perform than softmax \n"
                     "[TYPE] str \n"
                     "[DEFAULT] relu relu relu softmax \n"
                     "[EXAMPLE] --activation_layers relu relu relu sigmoid")
@@ -218,8 +234,6 @@ def main():
     args = vars(ap.parse_args())
     
     #save arguments in variables (for readability)
-    training_data = os.path.join("..", "data",  args["train_data"])
-    validation_data = os.path.join("..", "data", args["validation_data"])
     architecture_out = os.path.join("..", "output", args["architecture_out"])
     performance_out = os.path.join("..", "output", args["performance_out"])
     image_size = args["image_size"]
@@ -236,15 +250,40 @@ def main():
     """
     -------------- Preprocessing data ----------
     """
-    #Import class with utility functions
-    cnn_utils = Cnn_utils()
+    #If the data is already split between test and training data
+    if args["split_data"] == None:
+        
+        #Save data paths in variables
+        training_data = os.path.join("..", "data",  args["train_data"])
+        validation_data = os.path.join("..", "data", args["validation_data"])
+        
+        #----- Find and create labels -----
+        print("finding labels...")
+        trainY = cnn_utils.get_y(training_data)
+        testY = cnn_utils.get_y(validation_data)
+        label_names = cnn_utils.get_label_names(validation_data)
     
-    #----- Find and create labels -----
-    print("finding labels...")
-    trainY = cnn_utils.get_y(training_data)
-    testY = cnn_utils.get_y(validation_data)
-    label_names = cnn_utils.get_label_names(validation_data)
+        #----- Preprocess images -----
+        print("Preprocessing images...")
+        # Create training and test data
+        trainX = cnn_utils.get_x(training_data, (image_size[0], image_size[1]))
+        testX = cnn_utils.get_x(validation_data, (image_size[0],image_size[1]))
     
+    #if the data needs to be split
+    else:
+        #Save data path in variable
+        split_data = os.path.join("..", "data", args["split_data"])
+        #Get X
+        print("Preprocessing images...")
+        X = cnn_utils.get_x(split_data, (image_size[0], image_size[1]))
+        # Get y and label names
+        print("finding labels...")
+        y = cnn_utils.get_y(split_data)
+        label_names = cnn_utils.get_label_names(split_data)
+        
+        #Create training data and test data
+        trainX, testX, trainY, testY = train_test_split(X, y, test_size = 0.2)
+        
     #----- Binarize labels ------
     print("binarizing labels...")
     #Binariser
@@ -252,12 +291,6 @@ def main():
     #Transform labels 0-9 into binary labels
     trainY = lb.fit_transform(trainY)
     testY = lb.fit_transform(testY)
-    
-    #----- Preprocess images -----
-    print("Preprocessing images...")
-    # Create training and test data
-    trainX = cnn_utils.get_x(training_data, (image_size[0], image_size[1]))
-    testX = cnn_utils.get_x(validation_data, (image_size[0],image_size[1]))
     
     """
     ----------- Create model ----------
@@ -296,7 +329,7 @@ def main():
     model.add(Activation(activation_layer[2]))
 
     # -------- softmax classifier layer-------
-    model.add(Dense(len(label_names))
+    model.add(Dense(len(label_names)))
     #Activation
     model.add(Activation(activation_layer[3]))
     

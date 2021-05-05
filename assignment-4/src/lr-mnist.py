@@ -35,20 +35,14 @@ def main():
     ap = argparse.ArgumentParser(description = "[INFO] Classify MNIST data and print out performance report",
                                 formatter_class = RawTextHelpFormatter)
     
-    #size of training data in percentage
-    #ap.add_argument("-trs", "--train_size",
-    #                required = False,
-    #                default = 0.8,
-    #                type = float,
-    #                help = "The size of the training data as a percentage. DEFAULT = 0.8 (80%)")
-    
     #size of test data as a percentage float 
     ap.add_argument("-tes", "--test_size",
                     required = False,
                     default = 0.2,
                     type = float,
                     help =
-                    "[INFO] The size of the test data as a float percentage. The training size will be adjusted automatically \n"
+                    "[INFO] The size of the test data as a float percentage. \n"
+                    "[INFO] The training size will be adjusted automatically \n"
                     "[TYPE] float \n"
                     "[DEFAULT] 0.2 \n"
                     "[EXAMPLE] --test_size 0.1")
@@ -76,7 +70,6 @@ def main():
     #Create training data and test dataset
     X_train, X_test, y_train, y_test = train_test_split(X,
                                                         y,
-                                                        #train_size=trs,
                                                         test_size=tes)
     
     #re-scaling the features from 0-255 to between 0 and 1

@@ -7,8 +7,8 @@ import re
 import numpy as np
 import matplotlib.pyplot as plt
 
-#Get X data and preprocess it
-def get_x(self, folder_path, dimensions):
+#Get X data and preprocess it so it has the correct dimensions. 
+def get_x(folder_path, dimensions):
     #X data
     X = []
     #For each folder in training data
@@ -27,7 +27,7 @@ def get_x(self, folder_path, dimensions):
         
 # Get the name of each folder (the labels as a string)
 # folder_path needs to be a folder with subfolders
-def get_label_names(self, folder_path):
+def get_label_names(folder_path):
     #Array for names
     label_names = []
     #For each folder in the training data
@@ -39,7 +39,7 @@ def get_label_names(self, folder_path):
     return label_names
     
 #Get y data (the label for each picture)
-def get_y(self, folder_path):
+def get_y(folder_path):
     y = [] # A list of all images labels
     i = 0 #Counter
     #For each folder in the test data
@@ -54,7 +54,7 @@ def get_y(self, folder_path):
     return y
     
 #Function for plotting the models performance
-def plot_history(self, H, epochs, output = "performance.png"):
+def plot_history(H, epochs, output = "performance.png"):
     # visualize performance
     plt.style.use("fivethirtyeight")
     fig = plt.figure()
@@ -71,7 +71,7 @@ def plot_history(self, H, epochs, output = "performance.png"):
     fig.savefig(output)
     
 # Create a subset of data (usefull when needing to create a small data set)
-def subset_data(self, folder_path, destination, n_files):
+def subset_data(folder_path, destination, n_files):
     #folder which contains the sub directories
     #list sub directories 
     for root, dirs, files in os.walk(folder_path):
@@ -89,7 +89,7 @@ def subset_data(self, folder_path, destination, n_files):
                 shutil.copy2(folder_path + "%s/" % i  + j, path)
                 
 # Find smallest image (usefull for getting an idea of, which input size to chose for neural network
-def find_smallest_img(self, filepath):
+def find_smallest_img(filepath):
     #Array for training data
     images =[]
     #List of image sizes
@@ -109,7 +109,7 @@ def find_smallest_img(self, filepath):
     return smallest_image
 
 # Find largest image (usefull for getting an idea of, which input size to chose for neural network
-def find_largest_img(self, filepath):
+def find_largest_img(filepath):
     #Array for training data
     images =[]
     #List of image sizes

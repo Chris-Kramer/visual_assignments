@@ -28,7 +28,7 @@ deactivate
 # Move to home directory
 cd ..
 
-# Remove virtual environment (I'm just doing this to test if this is possible)
+# Remove virtual environment
 rm -rf $VENVNAME
 
 #Print this to the screen 
