@@ -1,14 +1,20 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 ---------- Import libs -----------
 """
+#System tools
 import sys,os
 sys.path.append(os.path.join(".."))
 
+#Data
+import numpy as np
+
 #Utility function - Neural networks with numpy
 from utils.neuralnetwork import NeuralNetwork
+
+#Argparse
 import argparse
-import numpy as np
+from argparse import RawTextHelpFormatter # Formatting -help
 
 # Machine learning tools
 from sklearn.preprocessing import LabelBinarizer
@@ -23,37 +29,54 @@ def main():
     ---------- Parameters ----------
     """
     #Create an argument parser from argparse
-    ap = argparse.ArgumentParser(description = "[INFO] Classify MNIST data and print out performance report")
+    ap = argparse.ArgumentParser(description = "[INFO] Classify MNIST data and print out performance report",
+                                formatter_class = RawTextHelpFormatter)
     
     #size of training data in percentage
-    ap.add_argument("-trs", "--train_size",
-                    required = False,
-                    default = 0.8,
-                    type = float,
-                    help = "The size of the training data as a percentage. DEFAULT = 0.8 (80%)")
+    #ap.add_argument("-trs", "--train_size",
+    #                required = False,
+    #                default = 0.8,
+    #                type = float,
+    #                help =
+    #                "[INFO] The size of the training data as a percentage \n"
+    #                "[TYPE] float \n"
+    #                "[DEFAULT] 0.8 \n"
+    #                "[EXAMPLE] --train_size 0.9")
     
     #size of test data in percentage 
     ap.add_argument("-tes", "--test_size",
                     required = False,
                     default = 0.2,
                     type = float,
-                    help = "The size of the test data as a percentage. DEFAULT = 0.2 (20%)")
+                    help =
+                    "[INFO] The size of the test data as a float percentage. Train size will be adjusted automatically \n"
+                    "[TYPE] float \n"
+                    "[DEFAULT] 0.2 \n"
+                    "[EXAMPLE] --test_size 0.1")
     
     #number of epochs
     ap.add_argument("-ep", "--epochs",
                     required = False,
                     default = 500,
                     type = int,
-                    help = "The number of epochs that should run. DEFAULT = 500")
+                    help =
+                    "[INFO] The number of epochs that should run \n"
+                    "[TYPE] int \n"
+                    "[DEFAULT] 500 \n"
+                    "[EXAMPLE] --epochs 250")
     
     #Hidden layers
     ap.add_argument("-l", "--layers",
                     required = False,
                     default = [32, 16],
                     nargs = "*",
-                    #action="append",
-                    #type = list,
-                    help = "Hidden layers as a list (max three items in the list). DEFAULT = 32 16)")
+                    type = int,
+                    help =
+                    "[INFO] Hidden layers as a list of ints \n"
+                    "[INFO] There can be between 1 and 3 layers \n"
+                    "[TYPE] int \n"
+                    "[DEFAULT] 32 16 \n"
+                    "[EXAMPLE] --layers 8 16 8")
   
     #Create an argument parser from argparse
     args = vars(ap.parse_args())
@@ -61,12 +84,13 @@ def main():
     #Save in variables for readability
     epoch_n = args["epochs"]
     layers = args["layers"]
-    trs = args["train_size"] #training size
+    #trs = args["train_size"] #training size
     tes = args["test_size"] #test size
     
     """
     ---------- Get and transform data ----------
     """
+    print("Fetching MNIST data ...")
     #Fetch data
     X, y = fetch_openml("mnist_784", version=1, return_X_y=True)
     
@@ -74,13 +98,14 @@ def main():
     X = np.array(X) #data
     y = np.array(y) #labels
     
+    print("Preprocessing data ...")
     #Rescale from between 0-255 to between 0-1
     X = (X - X.min())/(X.max() - X.min())
     
     #Create training data and test dataset
     X_train, X_test, y_train, y_test = train_test_split(X, 
                                                         y,
-                                                        train_size = trs,
+                                                        #train_size = trs,
                                                         test_size = tes)
     # convert labels from integers to vectors (binary)
     y_train = LabelBinarizer().fit_transform(y_train)
@@ -89,7 +114,6 @@ def main():
     """
     ----------- Train network -----------
     """
-    
     layers_length = len(layers)
     
     #If there are three layers

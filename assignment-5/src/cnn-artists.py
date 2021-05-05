@@ -2,21 +2,20 @@
 """
 ---------- Import libraries ----------
 """
-#Standard tools
+#System tools
 import os
 import sys
-import cv2
-from pathlib import Path
-import re
-import numpy as np
-import argparse
 sys.path.append(os.path.join("..")) #For importing homebrewed functions
+
+#Argparse
+import argparse
+from argparse import RawTextHelpFormatter # Formatting -help
 
 #Plotting
 import matplotlib.pyplot as plt
 
 #homebrewed functions
-from utils.cnn_utility import Cnn_utils
+import cnn_utils
 
 # sklearn tools
 from sklearn.preprocessing import LabelBinarizer
@@ -40,35 +39,59 @@ import warnings
 """
 def main():
     #Surpress warnings this this is usefull, when using a small data set
-    #Otherwise it will warn that some labels arent predicted (but this is natural with small data sets
+    #Otherwise it will warn that some labels arent predicted (but this is natural with small data sets)
     #Moreover the report makes it clear if the model performs poorly
     warnings.filterwarnings('ignore')
     """
     -------------- Parameters -------------
     """
     #Create an argument parser from argparse
-    ap = argparse.ArgumentParser(description = "[INFO] CNN for classifying painters")
+    ap = argparse.ArgumentParser(description = "[INFO] CNN for classifying painters",
+                                formatter_class = RawTextHelpFormatter)
     
     # dir to training data
     ap.add_argument("-t", "--train_data",
                     required = False,
-                    default = "data/small_training",
+                    default = "small_training",
                     type = str,
-                    help = "The folder to training data. DEFAULT = data/small_training")
+                    help =
+                    "[INFO] The folder with training data. Must be a subfolder in the 'data' folder \n"
+                    "[TYPE] str \n"
+                    "[DEFAULT] small_training \n"
+                    "[EXAMPLE] --train_data training")
     
     # dir to test data
     ap.add_argument("-v", "--validation_data",
                     required = False,
-                    default = "data/small_validation",
+                    default = "small_validation",
                     type = str,
-                    help = "The folder to test data. DEFAULT = data/small_validation")
+                    help =
+                    "[INFO] The folder with test/validation data. Must be a subfolder in the 'data' folder \n"
+                    "[TYPE] str \n"
+                    "[DEFAULT] small_validation \n"
+                    "[EXAMPLE] --validation_data validation")
     
-    # output dir
-    ap.add_argument("-o", "--output",
+    # Name for image of architecture
+    ap.add_argument("-a", "--architecture_out",
                     required = False,
-                    default = "output",
+                    default = "model_architecture.png",
                     type = str,
-                    help = "The folder for output data. DEFAULT = output")
+                    help =
+                    "[INFO] The name of the output image with model architecture \n"
+                    "[TYPE] str \n"
+                    "[DEFAULT] model_architecture.png \n"
+                    "[EXAMPLE] --architecture_out test_architecture.png")
+    
+    #Name for plot with performance
+    ap.add_argument("-p", "--performance_out",
+                    required = False,
+                    default = "performance.png",
+                    type = str,
+                    help =
+                    "[INFO] The file name for output plot with performance \n"
+                    "[TYPE] str \n"
+                    "[DEFAULT] performance.png \n"
+                    "[EXAMPLE] --performance_out performance.png")
     
     # image size
     ap.add_argument("-i", "--image_size",
@@ -76,7 +99,11 @@ def main():
                     default = [120, 120],
                     nargs = "*",
                     type = int,
-                    help = "The size of resized pictures. DEFAULT = 120 120")
+                    help =
+                    "[INFO] The dimensions of resized pictures as a list of ints [height, width] \n"
+                    "[TYPE] list of ints \n"
+                    "[DEFAULT] 120 120 \n"
+                    "[EXAMPLE] --image_size 60 60")
     
     # kernel size
     ap.add_argument("-k", "--kernel_size",
@@ -84,14 +111,26 @@ def main():
                     default = [3, 5],
                     nargs = "*",
                     type = int,
-                    help = "The size of two convolutionals kernels that are used in the first and second layer. DEFAULT = 3 5 (3x3 and 5x5")
+                    help =
+                    "[INFO] The size of two convolutionals kernels that are used in the first and second layer \n"
+                    "[INFO] First value represents the kernel size of first conv2d layer, second value represents sencond conv2d layer \n"
+                    "[TYPE] str \n"
+                    "[DEFAULT] 3 5 \n"
+                    "[EXAMPLE] --kernel_size 5 7")
     # filters
     ap.add_argument("-f", "--filters",
                     required = False,
                     default = [32, 50],
                     nargs = "*",
                     type = int,
-                    help = "The size of two output filters from the convolutional layers (there are two). DEFAULT = 32 50")
+                    help =
+                    "[INFO] The size of filters in the convolutional layers (there are two) \n"
+                    "[INFO] Argument is a list of ints (length of two) \n"
+                    "[INFO] First value is amount of filters in first conv2d layer \n"
+                    "[INFO] Second value is amount of filters in second conv2d layer \n"
+                    "[TYPE] list of ints \n"
+                    "[DEFAULT] 32 50 \n"
+                    "[EXAMPLE] --filters 32 64")
     
     # pool size
     ap.add_argument("-pz", "--pool_size",
@@ -99,14 +138,25 @@ def main():
                     default = [2, 2],
                     nargs = "*",
                     type = int,
-                    help = "The size of pool size for pooling layers (there are two). DEFAULT = 2 2 (2x2 and 2x2")
+                    help = 
+                    "[INFO] The pool size for pooling layers (there are two) as a list of ints \n"
+                    "[INFO] First value represents first pooling layer, second value represents second pooling layer \n"
+                    "[TYPE] list of ints \n"
+                    "[DEFAULT] 2 2 (2x2 and 2x2) \n"
+                    "[EXAMPLE] --pool_size 3 3"
     # strides
     ap.add_argument("-p", "--strides",
                     required = False,
                     default = [2, 2],
                     nargs = "*",
                     type = int,
-                    help = "The strides for each pooling layer (there are two). DEFAULT = 2 2 (2x2 and 2x2")
+                    help =
+                    "[INFO] The strides for each pooling layer (there are two) \n"
+                    "[INFO] First value represents strides ind first pooling layer \n"
+                    "[INFO] Second value represents strides in second pooling layer \n"
+                    "[TYPE] list of ints \n"
+                    "[DEFAULT] 2 2 (2x2 and 2x2) \n"
+                    "[EXAMPLE] --strides 3 3")
     
     # PAdding type
     ap.add_argument("-pt", "--padding",
@@ -114,7 +164,12 @@ def main():
                     default = ["same", "same"],
                     nargs = "*",
                     type = str,
-                    help = "The padding type for each convolutional layer (there are two). DEFAULT = same same")
+                    help =
+                    "[INFO] The padding type for each convolutional layer (there are two) \n"
+                    "[INFO] First value represents first pooling layer, second value represents second pooling layer \n"
+                    "[TYPE] str \n"
+                    "[DEFAULT] same same \n"
+                    "[EXAMPLE] --padding valid valid")
     
     # Activation layers
     ap.add_argument("-al", "--activation_layers",
@@ -122,34 +177,51 @@ def main():
                     default = ["relu", "relu", "relu", "softmax"],
                     nargs = "*",
                     type = str,
-                    help = "Each activation level (There are four). DEFAULT = relu relu relu softmax")
+                    help =
+                    "[INFO] Each activation level (There are four) \n"
+                    "[INFO] I recommend not changing these layers (especially softmax) unless you are trying binary classification) \n"
+                    "[TYPE] str \n"
+                    "[DEFAULT] relu relu relu softmax \n"
+                    "[EXAMPLE] --activation_layers relu relu relu sigmoid")
     # Learning rate
     ap.add_argument("-lr", "--learning_rate",
                     required = False,
                     default = 0.01,
                     type = float,
-                    help = "The learning rate for stochastic gradient descent. DEFAULT = 0.01")
+                    help =
+                    "[INFO] The learning rate for stochastic gradient descent \n"
+                    "[TYPE] float \n"
+                    "[DEFAULT] 0.01 \n"
+                    "[EXAMPLE] --learning_rate 0.001")
     # batch size
     ap.add_argument("-bs", "--batch_size",
                     required = False,
                     default = 32,
                     type = int,
-                    help = "The size of the batch processing. DEFAULT = 32")
+                    help =
+                    "[INFO] The batch size for processing \n"
+                    "[TYPE] int \n"
+                    "[DEFAULT] 32 \n"
+                    "[EXAMPLE] --batch_size 32")
     
     #number of epochs
     ap.add_argument("-ep", "--epochs",
                     required = False,
                     default = 20,
                     type = int,
-                    help = "The number of epochs that should run. DEFAULT = 20")
+                    help =
+                    "[INFO] The number of epochs that should run \n"
+                    "[TYPE] 20 \n"
+                    "[DEFAULT] 20 \n"
+                    "[EXAMPLE] --epochs 20")
 
     args = vars(ap.parse_args())
     
     #save arguments in variables (for readability)
-    #I'm using os.norm.path so the paths works on different OS
-    training_data = os.path.normpath("../" + args["train_data"]) 
-    validation_data = os.path.normpath("../" + args["validation_data"])
-    output = os.path.normpath("../" + args["output"])
+    training_data = os.path.join("..", "data",  args["train_data"])
+    validation_data = os.path.join("..", "data", args["validation_data"])
+    architecture_out = os.path.join("..", "output", args["architecture_out"])
+    performance_out = os.path.join("..", "output", args["performance_out"])
     image_size = args["image_size"]
     kernel_size = args["kernel_size"]
     filters = args["filters"]
@@ -224,7 +296,7 @@ def main():
     model.add(Activation(activation_layer[2]))
 
     # -------- softmax classifier layer-------
-    model.add(Dense(len(label_names)) #Should be changed to the lenght of label_names for generalisability
+    model.add(Dense(len(label_names))
     #Activation
     model.add(Activation(activation_layer[3]))
     
@@ -240,7 +312,7 @@ def main():
     #Create a summary of the model
     model.summary()
     #plot model
-    plot_model(model, to_file = os.path.normpath(output + "/model_architecture.png"), show_shapes=True, show_layer_names=True)
+    plot_model(model, to_file = architecture_out, show_shapes=True, show_layer_names=True)
     
     """
     ----------- Train and evaluate model --------------
@@ -254,9 +326,8 @@ def main():
                   verbose=1)
     
     #Plot performance pr. epoch
-    cnn_utils.plot_history(H, epochs, os.path.normpath(output + "/performance.png"))
+    cnn_utils.plot_history(H, epochs, performance_out)
     
-    #Create a summary of the model
     #Print classification report
     print("evaluating model...")
     predictions = model.predict(testX, batch_size = batch_size)
